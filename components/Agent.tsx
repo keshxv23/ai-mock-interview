@@ -5,9 +5,10 @@ import Image from "next/image";
 import {cn} from "@/lib/utils";
 import {useRouter} from "next/navigation";
 import {vapi} from "@/lib/vapi.sdk";
+import {interviewer} from "@/constants";
 
 enum CallStatus{
-     INACTIVE='INACTIVE',
+    INACTIVE='INACTIVE',
     CONNECTING='CONNECTING',
     ACTIVE='ACTIVE',
     FINISHED='FINISHED',
@@ -18,7 +19,7 @@ interface SavedMessage{
     content:string;
 }
 
-const Agent = ({ userName,userId,type }: AgentProps) => {
+const Agent = ({ userName,userId,type,questions }: AgentProps) => {
     const router = useRouter();
     const [isSpeaking, setIsSpeaking] = useState(false);
     const [callStatus, setCallStatus] = useState<CallStatus>(CallStatus.INACTIVE);
@@ -62,17 +63,37 @@ const Agent = ({ userName,userId,type }: AgentProps) => {
         if (callStatus === CallStatus.FINISHED) router.push('/');
     }, [messages, callStatus,type,userId]);
 
-    const handelCall = async ()=>{
+    const handleCall = async () => {
         setCallStatus(CallStatus.CONNECTING);
 
-        await vapi.start(process.env.NEXT_PUBLIC_VAPI_WORKFLOW_ID!, {
-            variableValues: {
-                username: userName,
-                userid: userId,
+        if (type === "generate") {
+            await vapi.start(
+                undefined,
+                undefined,
+                undefined,
+                process.env.NEXT_PUBLIC_VAPI_WORKFLOW_ID!,
+                {
+                    variableValues: {
+                        username: userName,
+                        userid: userId,
+                    },
+                }
+            );
+        } else {
+            let formattedQuestions = "";
+            if (questions) {
+                formattedQuestions = questions
+                    .map((question) => `- ${question}`)
+                    .join("\n");
             }
-        })
-    }
 
+            await vapi.start(interviewer, {
+                variableValues: {
+                    questions: formattedQuestions,
+                },
+            });
+        }
+    };
     const handleDisconnect = async () => {
         setCallStatus(CallStatus.FINISHED);
 
@@ -121,7 +142,7 @@ const Agent = ({ userName,userId,type }: AgentProps) => {
 
             <div className="w-full flex justify-center">
                 {callStatus !== 'ACTIVE' ? (
-                    <button className="relative btn-call" onClick={handelCall}>
+                    <button className="relative btn-call" onClick={handleCall}>
                         <span className={cn('absolute animate-ping rounded-full opacity-75',
                         callStatus !== 'CONNECTING' && 'hidden')}
                            />
