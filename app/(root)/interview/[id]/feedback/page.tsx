@@ -7,7 +7,7 @@ import dayjs from "dayjs";
 import Link from "next/link";
 import Image from "next/image";
 
-const Page =async ({ params }: RouteParams) => {
+const Feedback =async ({ params }: RouteParams) => {
     const { id } = await params;
     const user = await getCurrentUser();
 
@@ -60,14 +60,21 @@ const Page =async ({ params }: RouteParams) => {
             {/* Interview Breakdown */}
             <div className="flex flex-col gap-4">
                 <h2>Breakdown of the Interview:</h2>
-                {feedback?.categoryScores?.map((category, index) => (
-                    <div key={index}>
-                        <p className="font-bold">
-                            {index + 1}. {category.name} ({category.score}/100)
-                        </p>
-                        <p>{category.comment}</p>
-                    </div>
-                ))}
+                {Object.entries(feedback?.categoryScores || {}).map(([key, score], index) => {
+                    // Convert camelCase to readable format
+                    const readableName = key
+                        .replace(/([A-Z])/g, ' $1')
+                        .replace(/^./, str => str.toUpperCase());
+
+                    return (
+                        <div key={index}>
+                            <p className="font-bold">
+                                {index + 1}. {readableName} ({feedback?.totalScore}/100)
+                            </p>
+                        </div>
+                    );
+                })}
+
             </div>
 
             <div className="flex flex-col gap-3">
