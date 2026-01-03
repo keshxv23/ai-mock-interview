@@ -10,8 +10,8 @@ import Link from "next/link";
 import {toast} from "sonner";
 import FormField from "@/components/FormField";
 import {useRouter} from "next/navigation";
-import {createUserWithEmailAndPassword, signInWithEmailAndPassword} from "firebase/auth";
-import {auth} from "@/firebase/client";
+import {createUserWithEmailAndPassword, signInWithEmailAndPassword,signInWithPopup} from "firebase/auth";
+import {auth,googleProvider} from "@/firebase/client";
 import {signIn, signUp} from "@/lib/actions/auth.action";
 
 const authFormSchema = (type: FormType)=>{
@@ -81,6 +81,22 @@ const AuthForm = ({ type }: { type: FormType}) => {
 
         }
     }
+    const handleGoogleLogin = async () => {
+        try {
+            const result = await signInWithPopup(auth, googleProvider);
+
+            const idToken = await result.user.getIdToken();
+            const email = result.user.email ?? "";
+
+            await signIn({ email, idToken });
+
+            toast.success("Signed in with Google");
+            router.push("/");
+        } catch (err) {
+            console.error(err);
+            toast.error("Google login failed");
+        }
+    };
 
     const isSignIn= type === "sign-in";
 
@@ -118,6 +134,21 @@ const AuthForm = ({ type }: { type: FormType}) => {
                             type="password" />
 
                         <Button className="btn" type="submit">{isSignIn ? 'Sign-In' : 'Create an Account'}</Button>
+                        {isSignIn && (
+                            <button
+                                type="button"
+                                onClick={handleGoogleLogin}
+                                className="w-full mt-4 flex items-center justify-center gap-2 border p-2 rounded-xl"
+                            >
+                                <img
+                                    src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                                    width={20}
+                                    height={20}
+                                    alt="google"
+                                />
+                                Continue with Google
+                            </button>
+                        )}
                     </form>
                 </Form>
                 <p className="text-center">

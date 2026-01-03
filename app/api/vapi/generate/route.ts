@@ -11,9 +11,9 @@ export async function POST(request:Request){
     const { type,role,level,techstack,amount,userid} = await request.json();
 
     try{
-    const { text: questions } =await generateText({
-        model: google('gemini-2.0-flash-001'),
-        prompt:`Prepare questions for a job interview.
+        const { text: questions } =await generateText({
+            model: google('gemini-2.0-flash-001'),
+            prompt:`Prepare questions for a job interview.
         The job role is ${role}.
         The job experience level is ${level}.
         The tech stack used in the job is: ${techstack}.
@@ -26,23 +26,23 @@ export async function POST(request:Request){
         
         Thank you! <3
     `,
-    });
+        });
 
-    const interview = {
-        role: role,
-        type: type,
-        level: level,
-        techstack: techstack.split(','),
-        questions: JSON.parse(questions),
-        userId: userid,
-        finalized: true,
-        coverImage: getRandomInterviewCover(),
-        createdAt: new Date().toISOString()
-    }
+        const interview = {
+            role: role,
+            type: type,
+            level: level,
+            techstack: techstack.split(','),
+            questions: JSON.parse(questions),
+            userId: userid,
+            finalized: true,
+            coverImage: getRandomInterviewCover(),
+            createdAt: new Date().toISOString()
+        }
 
-    await db.collection("interviews").add(interview);
+        await db.collection("interviews").add(interview);
 
-    return Response.json({ success: true}, {status: 200});
+        return Response.json({ success: true}, {status: 200});
     }catch (error){
         console.error(error);
 

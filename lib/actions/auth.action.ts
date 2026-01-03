@@ -83,6 +83,18 @@ export async function setSessionCookie(idToken:string){
     })
 }
 
+export async function deleteSessionCookie() {
+    const cookieStore = await cookies();
+
+    cookieStore.set("session", "", {
+        maxAge: 0,
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        path: "/",
+        sameSite: "lax",
+    });
+}
+
 export async function getCurrentUser():Promise<User | null>{
     const cookieStore = await cookies();
 

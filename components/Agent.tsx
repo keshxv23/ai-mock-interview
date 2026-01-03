@@ -27,41 +27,41 @@ const Agent = ({ userName,userId,type,interviewId,questions }: AgentProps) => {
     const [messages, setMessages] = useState<SavedMessage[]>([]);
 
     useEffect(() =>{
-       const onCallStart = () => setCallStatus((CallStatus.ACTIVE));
-       const onCallEnd = () => setCallStatus((CallStatus.FINISHED));
+        const onCallStart = () => setCallStatus((CallStatus.ACTIVE));
+        const onCallEnd = () => setCallStatus((CallStatus.FINISHED));
 
-       const onMessage = (message: Message)=>{
-           if(message.type === 'transcript' && message.transcriptType === 'final'){
-               const newMessage = {role: message.role,content: message.transcript}
+        const onMessage = (message: Message)=>{
+            if(message.type === 'transcript' && message.transcriptType === 'final'){
+                const newMessage = {role: message.role,content: message.transcript}
 
-               setMessages((prev) => [...prev, newMessage]);
-           }
-       }
+                setMessages((prev) => [...prev, newMessage]);
+            }
+        }
 
-       const onSpeechStart = () => setIsSpeaking(true);
-       const onSpeechEnd = () => setIsSpeaking(false);
+        const onSpeechStart = () => setIsSpeaking(true);
+        const onSpeechEnd = () => setIsSpeaking(false);
 
-       const onError = (error: Error)=>console.log('Error',error);
+        const onError = (error: Error)=>console.log('Error',error);
 
-       vapi.on('call-start', onCallStart);
-       vapi.on('call-end', onCallEnd);
-       vapi.on('message', onMessage);
-       vapi.on('speech-start', onSpeechStart);
-       vapi.on('speech-end', onSpeechEnd);
-       vapi.on('error', onError);
+        vapi.on('call-start', onCallStart);
+        vapi.on('call-end', onCallEnd);
+        vapi.on('message', onMessage);
+        vapi.on('speech-start', onSpeechStart);
+        vapi.on('speech-end', onSpeechEnd);
+        vapi.on('error', onError);
 
-       return () => {
-           vapi.off('call-start', onCallStart);
-           vapi.off('call-end', onCallEnd);
-           vapi.off('message', onMessage);
-           vapi.off('speech-start', onSpeechStart);
-           vapi.off('speech-end', onSpeechEnd);
-           vapi.off('error', onError);
-       }
+        return () => {
+            vapi.off('call-start', onCallStart);
+            vapi.off('call-end', onCallEnd);
+            vapi.off('message', onMessage);
+            vapi.off('speech-start', onSpeechStart);
+            vapi.off('speech-end', onSpeechEnd);
+            vapi.off('error', onError);
+        }
     },[])
 
     const handleGenerateFeedback = async (messages:
-    SavedMessage[]) => {
+                                          SavedMessage[]) => {
         console.log('Generate feedback here');
 
         const { success, feedbackId: id } = await createFeedback({
@@ -167,9 +167,9 @@ const Agent = ({ userName,userId,type,interviewId,questions }: AgentProps) => {
                 {callStatus !== 'ACTIVE' ? (
                     <button className="relative btn-call" onClick={handleCall}>
                         <span className={cn('absolute animate-ping rounded-full opacity-75',
-                        callStatus !== 'CONNECTING' && 'hidden')}
-                           />
-                            <span>
+                            callStatus !== 'CONNECTING' && 'hidden')}
+                        />
+                        <span>
                                 {isCallInactiveOrFinished ? 'Call': '...'}
                             </span>
 
